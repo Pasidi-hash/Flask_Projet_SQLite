@@ -29,7 +29,7 @@ def fiche_nom():
     return render_template('recherche_client.html', client=client, nom_recherche=nom_saisi)
 
 
-app = Flask(__name__)
+
 app.secret_key = 'une_cle_secrete_au_choix' # Obligatoire pour utiliser les sessions
 
 # Route pour la recherche (protégée)
