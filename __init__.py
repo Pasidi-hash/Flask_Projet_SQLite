@@ -26,6 +26,10 @@ def fiche_nom(nom): # recherche du client
 def hello_world():
     return render_template('hello.html')
 
+@app.route('/recherche_client')
+def recherche():
+    return render_template('recherche_client.html')
+
 @app.route('/lecture')
 def lecture():
     if not est_authentifie():
