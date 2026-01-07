@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recherche Client</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Rechercher une fiche client</h1>
+    
+    <form action="/fiche_nom/" method="GET">
+        <input type="text" name="nom" placeholder="Entrez le nom du client..." required>
+        <button type="submit">Rechercher</button>
+    </form>
+
+    <hr>
+
+    {% if client %}
+        <div class="resultat">
+            <h2>Résultat pour : {{ client.nom }}</h2>
+            <p><strong>ID :</strong> {{ client.id }}</p>
+            <p><strong>Email :</strong> {{ client.email }}</p>
+            </div>
+    {% elif nom_recherche %}
+        <p style="color: red;">Aucun client trouvé pour le nom : "{{ nom_recherche }}"</p>
+    {% endif %}
+
+    <p><a href="/">Retour à l'accueil</a></p>
+</body>
+</html>
