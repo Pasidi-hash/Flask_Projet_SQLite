@@ -15,30 +15,23 @@ def est_authentifie():
 from flask import Flask, render_template, request
 import sqlite3
 
-# ... (votre code de connexion existant) ...
+
 
 @app.route('/fiche_nom')
 def fiche_nom():
-    # 1. Récupérer le nom saisi dans le formulaire (attribut name="nom")
-    nom_recherche = request.args.get('nom', '')
+    # 1. Récupérer le nom écrit dans la barre de recherche
+    nom_saisi = request.args.get('nom') 
     
+    # 2. Connexion à la base de données
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
-    cur = conn.cursor()
     
-    # 2. Chercher le client exact dans la base de données
-    # On utilise 'nom_recherche' pour filtrer
-    cur.execute("SELECT * FROM clients WHERE nom = ?", (nom_recherche,))
-    client = cur.fetchone() # On récupère un seul client selon votre HTML
-    
+    # 3. Chercher le client
+    client_trouve = conn.execute("SELECT * FROM clients WHERE nom = ?", (nom_saisi,)).fetchone()
     conn.close()
     
-    # 3. Envoyer les données au template
-    # 'client' contiendra les infos ou None si pas trouvé
-    # 'nom_recherche' est envoyé pour afficher le message d'erreur si besoin
-    return render_template('recherche_client.html', 
-                           client=client, 
-                           nom_recherche=nom_recherche)
+    # 4. Envoyer le résultat au fichier HTML
+    return render_template('recherche_client.html', client=client_trouve, nom_recherche=nom_saisi)
         
 @app.route('/')
 def hello_world():
