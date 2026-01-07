@@ -14,25 +14,19 @@ def est_authentifie():
 
 @app.route('/fiche_nom')
 def fiche_nom():
-    # Récupère le nom saisi dans le formulaire (name="nom")
-    nom_saisi = request.args.get('nom')
+    # Récupère le nom depuis l'URL (?nom=DUPONT)
+    nom_saisi = request.args.get('nom', '')
     
+    # Connexion à la base
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
-    cur = conn.cursor()
     
-    # Cherche le client dans la base
-    cur.execute("SELECT * FROM clients WHERE nom = ?", (nom_saisi,))
-    client_trouve = cur.fetchone()
+    # Recherche (on utilise UPPER pour éviter les problèmes de majuscules)
+    client = conn.execute("SELECT * FROM clients WHERE nom = ?", (nom_saisi,)).fetchone()
     conn.close()
     
-    # Renvoie vers votre fichier HTML avec les données
-    return render_template('recherche_client.html', 
-                           client=client_trouve, 
-                           nom_recherche=nom_saisi)
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    # On renvoie vers votre fichier
+    return render_template('recherche_client.html', client=client, nom_recherche=nom_saisi)
         
 @app.route('/')
 def hello_world():
