@@ -12,28 +12,33 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
 def est_authentifie():
     return session.get('authentifie')
 
-@app.route('/recherche')
-def recherche():
+from flask import Flask, render_template, request
+import sqlite3
 
-    query = request.args.get('nom_cherche', '')
+# ... (votre code de connexion existant) ...
 
+@app.route('/fiche_nom')
+def fiche_nom():
+    # 1. Récupérer le nom saisi dans le formulaire (attribut name="nom")
+    nom_recherche = request.args.get('nom', '')
+    
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-
-    if query:
-        # Recherche les clients dont le nom ou le prénom contient la saisie
-        cur.execute("SELECT * FROM clients WHERE nom LIKE ? OR prenom LIKE ?", 
-                    ('%' + query + '%', '%' + query + '%'))
-    else:
-        # Si la barre est vide, on affiche tous les clients
-        cur.execute("SELECT * FROM clients")
-
-    resultats = cur.fetchall()
+    
+    # 2. Chercher le client exact dans la base de données
+    # On utilise 'nom_recherche' pour filtrer
+    cur.execute("SELECT * FROM clients WHERE nom = ?", (nom_recherche,))
+    client = cur.fetchone() # On récupère un seul client selon votre HTML
+    
     conn.close()
-
-    # On envoie les données vers votre fichier HTML existant
-    return render_template('recherche_client.html', clients=resultats, recherche_precedente=query)
+    
+    # 3. Envoyer les données au template
+    # 'client' contiendra les infos ou None si pas trouvé
+    # 'nom_recherche' est envoyé pour afficher le message d'erreur si besoin
+    return render_template('recherche_client.html', 
+                           client=client, 
+                           nom_recherche=nom_recherche)
         
 @app.route('/')
 def hello_world():
