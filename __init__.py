@@ -49,35 +49,40 @@ def fiche_nom():
     
     return render_template('recherche_client.html', client=client, nom_recherche=nom_saisi)
 
-# Route pour simuler la connexion (user/12345)
-@app.route('/login')
-def login():
-    # On force la connexion pour l'exercice
-    # Dans un vrai cas, vous feriez un formulaire
-    session['logged_in'] = True
-    return "Vous êtes maintenant connecté en tant que User. <a href='/fiche_nom'>Aller à la recherche</a>"
+# 1. Vérification des identifiants demandés (Exercice 2)
+def verifier_auth(username, password):
+    return username == 'user' and password == '12345'
 
-@app.route('/logout')
-def logout():
-    session.pop('logged_in', None)
-    return "Déconnecté."
-        
-@app.route('/')
-def hello_world():
-    return render_template('hello.html')
+# 2. Fonction qui déclenche la fenêtre de "Pop-up" dans le navigateur
+def demander_identification():
+    return Response(
+        'Veuillez vous connecter avec user / 12345', 401,
+        {'WWW-Authenticate': 'Basic realm="Acces Fiche Client"'}
+    )
 
-@app.route('/recherche_client')
-def recherche():
-    return render_template('recherche_client.html')
+@app.route('/fiche_nom/')
+def fiche_nom():
+    # 3. On regarde si l'utilisateur a rempli la fenêtre d'identification
+    auth = request.authorization
+    
+    if not auth or not verifier_auth(auth.username, auth.password):
+        # Si non, ou si c'est faux, on fait apparaître/réapparaître le pop-up
+        return demander_identification()
 
-@app.route('/lecture')
-def lecture():
-    if not est_authentifie():
-        # Rediriger vers la page d'authentification si l'utilisateur n'est pas authentifié
-        return redirect(url_for('authentification'))
+    # 4. Si l'identification est réussie, on exécute la recherche
+    nom_saisi = request.args.get('nom', '')
+    
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    
+    client_trouve = conn.execute("SELECT * FROM clients WHERE nom = ?", (nom_saisi,)).fetchone()
+    conn.close()
+    
+    # 5. On affiche votre fichier HTML avec les résultats
+    return render_template('recherche_client.html', client=client_trouve, nom_recherche=nom_saisi)
 
-  # Si l'utilisateur est authentifié
-    return "<h2>Bravo, vous êtes authentifié</h2>"
+if __name__ == '__main__':
+    app.run(debug=True)
 
 @app.route('/authentification', methods=['GET', 'POST'])
 def authentification():
