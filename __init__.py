@@ -12,26 +12,27 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
 def est_authentifie():
     return session.get('authentifie')
 
-from flask import Flask, render_template, request
-import sqlite3
-
-
-
 @app.route('/fiche_nom')
 def fiche_nom():
-    # 1. Récupérer le nom écrit dans la barre de recherche
-    nom_saisi = request.args.get('nom') 
+    # Récupère le nom saisi dans le formulaire (name="nom")
+    nom_saisi = request.args.get('nom')
     
-    # 2. Connexion à la base de données
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
     
-    # 3. Chercher le client
-    client_trouve = conn.execute("SELECT * FROM clients WHERE nom = ?", (nom_saisi,)).fetchone()
+    # Cherche le client dans la base
+    cur.execute("SELECT * FROM clients WHERE nom = ?", (nom_saisi,))
+    client_trouve = cur.fetchone()
     conn.close()
     
-    # 4. Envoyer le résultat au fichier HTML
-    return render_template('recherche_client.html', client=client_trouve, nom_recherche=nom_saisi)
+    # Renvoie vers votre fichier HTML avec les données
+    return render_template('recherche_client.html', 
+                           client=client_trouve, 
+                           nom_recherche=nom_saisi)
+
+if __name__ == '__main__':
+    app.run(debug=True)
         
 @app.route('/')
 def hello_world():
