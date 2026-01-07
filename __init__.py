@@ -12,15 +12,28 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
 def est_authentifie():
     return session.get('authentifie')
 
-@app.route('/fiche_nom/<nom>')
-def fiche_nom(nom): # recherche du client
-    client = Client.query.filter_by(nom=nom).first()
-    
-    if client:
-        # Renvoie vers un template pour afficher les infos
-        return render_template('fiche_client.html', client=client)
+@app.route('/recherche')
+def recherche():
+
+    query = request.args.get('nom_cherche', '')
+
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+
+    if query:
+        # Recherche les clients dont le nom ou le prénom contient la saisie
+        cur.execute("SELECT * FROM clients WHERE nom LIKE ? OR prenom LIKE ?", 
+                    ('%' + query + '%', '%' + query + '%'))
     else:
-        return "Client non trouvé", 404
+        # Si la barre est vide, on affiche tous les clients
+        cur.execute("SELECT * FROM clients")
+
+    resultats = cur.fetchall()
+    conn.close()
+
+    # On envoie les données vers votre fichier HTML existant
+    return render_template('recherche_client.html', clients=resultats, recherche_precedente=query)
         
 @app.route('/')
 def hello_world():
