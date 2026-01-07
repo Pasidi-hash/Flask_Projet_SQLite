@@ -12,6 +12,16 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
 def est_authentifie():
     return session.get('authentifie')
 
+@app.route('/fiche_nom/<nom>')
+def fiche_nom(nom): # recherche du client
+    client = Client.query.filter_by(nom=nom).first()
+    
+    if client:
+        # Renvoie vers un template pour afficher les infos
+        return render_template('fiche_client.html', client=client)
+    else:
+        return "Client non trouvé", 404
+        
 @app.route('/')
 def hello_world():
     return render_template('hello.html')
