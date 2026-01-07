@@ -27,6 +27,40 @@ def fiche_nom():
     
     # On renvoie vers votre fichier
     return render_template('recherche_client.html', client=client, nom_recherche=nom_saisi)
+
+
+app = Flask(__name__)
+app.secret_key = 'une_cle_secrete_au_choix' # Obligatoire pour utiliser les sessions
+
+# Route pour la recherche (protégée)
+@app.route('/fiche_nom')
+def fiche_nom():
+    # Vérification : l'utilisateur est-il connecté ?
+    if not session.get('logged_in'):
+        return "Accès refusé. Veuillez vous connecter.", 401
+
+    nom_saisi = request.args.get('nom', '')
+    
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    
+    client = conn.execute("SELECT * FROM clients WHERE nom = ?", (nom_saisi,)).fetchone()
+    conn.close()
+    
+    return render_template('recherche_client.html', client=client, nom_recherche=nom_saisi)
+
+# Route pour simuler la connexion (user/12345)
+@app.route('/login')
+def login():
+    # On force la connexion pour l'exercice
+    # Dans un vrai cas, vous feriez un formulaire
+    session['logged_in'] = True
+    return "Vous êtes maintenant connecté en tant que User. <a href='/fiche_nom'>Aller à la recherche</a>"
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return "Déconnecté."
         
 @app.route('/')
 def hello_world():
