@@ -29,61 +29,6 @@ def fiche_nom():
     return render_template('recherche_client.html', client=client, nom_recherche=nom_saisi)
 
 
-
-app.secret_key = 'une_cle_secrete_au_choix' # Obligatoire pour utiliser les sessions
-
-# Route pour la recherche (protégée)
-@app.route('/fiche_nom')
-def fiche_nom():
-    # Vérification : l'utilisateur est-il connecté ?
-    if not session.get('logged_in'):
-        return "Accès refusé. Veuillez vous connecter.", 401
-
-    nom_saisi = request.args.get('nom', '')
-    
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
-    
-    client = conn.execute("SELECT * FROM clients WHERE nom = ?", (nom_saisi,)).fetchone()
-    conn.close()
-    
-    return render_template('recherche_client.html', client=client, nom_recherche=nom_saisi)
-
-# 1. Vérification des identifiants demandés (Exercice 2)
-def verifier_auth(username, password):
-    return username == 'user' and password == '12345'
-
-# 2. Fonction qui déclenche la fenêtre de "Pop-up" dans le navigateur
-def demander_identification():
-    return Response(
-        'Veuillez vous connecter avec user / 12345', 401,
-        {'WWW-Authenticate': 'Basic realm="Acces Fiche Client"'}
-    )
-
-@app.route('/fiche_nom/')
-def fiche_nom():
-    # 3. On regarde si l'utilisateur a rempli la fenêtre d'identification
-    auth = request.authorization
-    
-    if not auth or not verifier_auth(auth.username, auth.password):
-        # Si non, ou si c'est faux, on fait apparaître/réapparaître le pop-up
-        return demander_identification()
-
-    # 4. Si l'identification est réussie, on exécute la recherche
-    nom_saisi = request.args.get('nom', '')
-    
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
-    
-    client_trouve = conn.execute("SELECT * FROM clients WHERE nom = ?", (nom_saisi,)).fetchone()
-    conn.close()
-    
-    # 5. On affiche votre fichier HTML avec les résultats
-    return render_template('recherche_client.html', client=client_trouve, nom_recherche=nom_saisi)
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
 @app.route('/authentification', methods=['GET', 'POST'])
 def authentification():
     if request.method == 'POST':
