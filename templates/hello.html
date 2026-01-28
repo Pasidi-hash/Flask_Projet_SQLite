@@ -2,72 +2,75 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Gestion Bibliothèque Dynamique</title>
+    <title>Application Bibliothèque Complète</title>
     <style>
         :root {
             --noir: #1a1a1a;
             --bleu: #0056b3;
-            --gris-fond: #f4f4f4;
-            --gris-bordure: #dcdcdc;
+            --gris-clair: #f4f4f4;
+            --gris-bordure: #ced4da;
             --blanc: #ffffff;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--gris-fond); color: var(--noir); margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--gris-clair); color: var(--noir); margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; }
         
-        h1 { border-left: 6px solid var(--bleu); padding-left: 15px; margin-bottom: 30px; text-transform: uppercase; }
+        h1 { border-left: 6px solid var(--bleu); padding-left: 15px; margin-bottom: 25px; }
 
         section { 
             background: var(--blanc); padding: 20px; margin-bottom: 20px; 
-            border-radius: 4px; border: 1px solid var(--gris-bordure);
+            border-radius: 5px; border: 1px solid var(--gris-bordure);
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        h2 { color: var(--bleu); font-size: 1.1em; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        h2 { color: var(--bleu); font-size: 1.1em; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 0; }
 
-        .form-inline { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        input { flex: 1; padding: 10px; border: 1px solid var(--gris-bordure); border-radius: 4px; min-width: 150px; }
+        .form-row { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input { flex: 1; padding: 10px; border: 1px solid var(--gris-bordure); border-radius: 4px; }
         
         button { 
-            background: var(--noir); color: white; border: none; padding: 10px 20px; 
+            background: var(--noir); color: white; border: none; padding: 10px 18px; 
             cursor: pointer; border-radius: 4px; font-weight: bold; transition: 0.2s;
         }
-        button:hover { opacity: 0.8; }
+        button:hover { background: #333; }
         .btn-blue { background: var(--bleu); }
+        .btn-danger { background: #dc3545; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { background: var(--noir); color: white; padding: 12px; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: var(--noir); color: white; padding: 10px; text-align: left; font-size: 0.9em; }
         td { padding: 10px; border-bottom: 1px solid #eee; }
 
-        .stats-bar { display: flex; gap: 15px; margin-top: 20px; }
-        .stat-box { flex: 1; background: var(--noir); color: white; padding: 15px; border-radius: 4px; text-align: center; }
-        .stat-box span { display: block; font-size: 1.5em; font-weight: bold; color: var(--bleu); }
+        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .stat-card { background: var(--noir); color: white; padding: 15px; border-radius: 5px; text-align: center; }
+        .stat-card span { display: block; font-size: 1.8em; color: var(--bleu); font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>📚 Administration Bibliothèque</h1>
+    <h1>Application Bibliothèque</h1>
 
     <section>
-        <h2>➕ Enregistrer un nouveau livre</h2>
-        <div class="form-inline">
+        <h2>📚 Enregistrement et Suppression de livres</h2>
+        <div class="form-row">
             <input type="text" id="bookTitle" placeholder="Titre du livre">
             <input type="text" id="bookAuthor" placeholder="Auteur">
-            <button class="btn-blue" onclick="ajouterLivre()">Ajouter au stock</button>
+            <button class="btn-blue" onclick="ajouterLivre()">Ajouter le livre</button>
         </div>
+        <p style="font-size: 0.8em; color: #666;">* Pour supprimer, utilisez le bouton dans la liste ci-dessous.</p>
     </section>
 
     <section>
-        <h2>🔍 Inventaire & Emprunts</h2>
-        <input type="text" id="searchBar" placeholder="Rechercher un livre..." onkeyup="filtrerLivres()" style="width: 100%; margin-bottom: 15px;">
+        <h2>🔍 Recherche et Emprunt</h2>
+        <input type="text" id="searchBar" placeholder="Rechercher un livre par titre ou auteur..." onkeyup="filtrerLivres()" style="width: 100%; margin-bottom: 15px; box-sizing: border-box;">
         
         <table>
             <thead>
                 <tr>
                     <th>Titre</th>
                     <th>Auteur</th>
-                    <th>Action</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="bookList">
@@ -75,93 +78,110 @@
         </table>
     </section>
 
-    <div class="stats-bar">
-        <div class="stat-box">Total Livres <span id="statTotal">0</span></div>
-        <div class="stat-box">Emprunts <span id="statEmprunts">0</span></div>
-    </div>
+    <section>
+        <h2>👥 Gestion des Utilisateurs</h2>
+        <div class="form-row">
+            <input type="text" id="userName" placeholder="Nom de l'utilisateur">
+            <button class="btn-blue" onclick="ajouterUtilisateur()">Enregistrer Utilisateur</button>
+        </div>
+        <ul id="userList" style="list-style: none; padding: 0; display: flex; gap: 10px; flex-wrap: wrap;">
+            </ul>
+    </section>
+
+    <section>
+        <h2>📊 Gestion des Stocks</h2>
+        <div class="grid-stats">
+            <div class="stat-card">Livres en stock <span id="statTotal">0</span></div>
+            <div class="stat-card">Emprunts en cours <span id="statEmprunts">0</span></div>
+            <div class="stat-card">Utilisateurs inscrits <span id="statUsers">0</span></div>
+        </div>
+    </section>
 </div>
 
 <script>
-    // Notre base de données locale (tableau d'objets)
+    // DONNÉES DE DÉPART
     let livres = [
-        { id: 1, titre: "L'Étranger", auteur: "Albert Camus" },
-        { id: 2, titre: "Naruto T.1", auteur: "Masashi Kishimoto" }
+        { id: 1, titre: "Les Misérables", auteur: "Victor Hugo", disponible: true },
+        { id: 2, titre: "One Piece T.1", auteur: "Eiichiro Oda", disponible: true }
     ];
+    let utilisateurs = ["Admin", "Jean Dupont"];
 
-    let nbEmprunts = 0;
-
-    // Fonction pour afficher la liste
+    // --- FONCTIONS LIVRES ---
     function afficherLivres(liste = livres) {
         const tbody = document.getElementById('bookList');
         tbody.innerHTML = "";
+        liste.forEach(livre => {
+            const statut = livre.disponible ? "<span style='color:green'>Disponible</span>" : "<span style='color:red'>Emprunté</span>";
+            const actionEmprunt = livre.disponible 
+                ? `<button class="btn-blue" onclick="changerStatut(${livre.id})">Emprunter</button>` 
+                : `<button onclick="changerStatut(${livre.id})" style="background:#6c757d">Rendre</button>`;
 
-        liste.forEach((livre) => {
             tbody.innerHTML += `
                 <tr>
                     <td>${livre.titre}</td>
                     <td>${livre.auteur}</td>
+                    <td>${statut}</td>
                     <td>
-                        <button class="btn-blue" onclick="emprunter()">Emprunter</button>
-                        <button onclick="supprimerLivre(${livre.id})" style="background:#6c757d; padding: 5px 10px;">Supprimer</button>
+                        ${actionEmprunt}
+                        <button class="btn-danger" onclick="supprimerLivre(${livre.id})" style="padding:5px 10px; margin-left:5px">🗑️</button>
                     </td>
-                </tr>
-            `;
+                </tr>`;
         });
-        
-        // Mise à jour des stats
-        document.getElementById('statTotal').innerText = livres.length;
-        document.getElementById('statEmprunts').innerText = nbEmprunts;
+        majStats();
     }
 
-    // Fonction pour ajouter un livre
     function ajouterLivre() {
-        const titre = document.getElementById('bookTitle').value;
-        const auteur = document.getElementById('bookAuthor').value;
-
-        if (titre === "" || auteur === "") {
-            alert("Merci de remplir tous les champs");
-            return;
-        }
-
-        const nouveauLivre = {
-            id: Date.now(), // Génère un ID unique
-            titre: titre,
-            auteur: auteur
-        };
-
-        livres.push(nouveauLivre);
-        afficherLivres();
-
-        // Vider les champs
+        const t = document.getElementById('bookTitle').value;
+        const a = document.getElementById('bookAuthor').value;
+        if(!t || !a) return alert("Remplissez les champs");
+        livres.push({ id: Date.now(), titre: t, auteur: a, disponible: true });
         document.getElementById('bookTitle').value = "";
         document.getElementById('bookAuthor').value = "";
+        afficherLivres();
     }
 
-    // Fonction pour supprimer
     function supprimerLivre(id) {
         livres = livres.filter(l => l.id !== id);
         afficherLivres();
     }
 
-    // Fonction pour simuler un emprunt
-    function emprunter() {
-        nbEmprunts++;
-        document.getElementById('statEmprunts').innerText = nbEmprunts;
-        alert("Livre emprunté avec succès !");
+    function changerStatut(id) {
+        const livre = livres.find(l => l.id === id);
+        livre.disponible = !livre.disponible;
+        afficherLivres();
     }
 
-    // Fonction de recherche
     function filtrerLivres() {
-        const query = document.getElementById('searchBar').value.toLowerCase();
-        const resultats = livres.filter(l => 
-            l.titre.toLowerCase().includes(query) || 
-            l.auteur.toLowerCase().includes(query)
-        );
-        afficherLivres(resultats);
+        const q = document.getElementById('searchBar').value.toLowerCase();
+        const res = livres.filter(l => l.titre.toLowerCase().includes(q) || l.auteur.toLowerCase().includes(q));
+        afficherLivres(res);
     }
 
-    // Lancement au démarrage
+    // --- FONCTIONS UTILISATEURS ---
+    function afficherUtilisateurs() {
+        const ul = document.getElementById('userList');
+        ul.innerHTML = utilisateurs.map(u => `<li style="background:#eee; padding:5px 15px; border-radius:20px; border:1px solid #ccc;">${u}</li>`).join('');
+        majStats();
+    }
+
+    function ajouterUtilisateur() {
+        const u = document.getElementById('userName').value;
+        if(!u) return;
+        utilisateurs.push(u);
+        document.getElementById('userName').value = "";
+        afficherUtilisateurs();
+    }
+
+    // --- STATS ---
+    function majStats() {
+        document.getElementById('statTotal').innerText = livres.length;
+        document.getElementById('statEmprunts').innerText = livres.filter(l => !l.disponible).length;
+        document.getElementById('statUsers').innerText = utilisateurs.length;
+    }
+
+    // INIT
     afficherLivres();
+    afficherUtilisateurs();
 </script>
 
 </body>
