@@ -16,67 +16,47 @@ def est_authentifie():
 def hello_world():
     return render_template('hello.html')
 
-from flask import Flask, render_template, request, redirect, url_for
-import sqlite3
-
-
-def get_db():
-    conn = sqlite3.connect('gestion_taches.db')
-    conn.row_factory = sqlite3.Row
-    return conn
-
-@app.route('/')
-def index():
-    # Page d'accueil avec navigation 
-    return render_template('index.html')
-
 @app.route('/Gestionnaire')
 def Gestion():
-    try:
-        # Connexion à la base spécifique au projet
-        conn = sqlite3.connect('gestion_taches.db')
-        
-        # CETTE LIGNE EST ESSENTIELLE : elle permet d'accéder aux données 
-        # par nom (tache['titre']) au lieu d'index (tache[1])
-        conn.row_factory = sqlite3.Row 
-        
-        cursor = conn.cursor()
-        
-        # On récupère toutes les tâches
-        taches = cursor.execute('SELECT * FROM taches').fetchall()
-        conn.close()
-        
-        # On envoie les données au HTML
-        return render_template('GestionTaches.html', taches=taches)
-        
-    except sqlite3.OperationalError as e:
-        # Si la table n'existe pas, on affiche un message clair au lieu d'une erreur 500
-        return f"Erreur : La table n'existe pas encore. Lancez 'python createdbgestion.py'. Détail : {e}"
-@app.route('/ajouter', methods=['POST'])
-def ajouter():
-    # Ajouter une tâche 
+    conn = get_db_connection()
+    # Récupère toutes les tâches pour les afficher dans la liste
+    taches = conn.execute('SELECT * FROM taches').fetchall()
+    conn.close()
+    return render_template('GestionTaches.html', taches=taches)
+
+@app.route('/enregistrer_tache', methods=['POST'])
+def enregistrer_tache():
     titre = request.form.get('titre')
-    desc = request.form.get('description')
-    date = request.form.get('dateEcheance')
-    
-    conn = get_db()
+    description = request.form.get('description')
+    date_echeance = request.form.get('dateEcheance')
+
+    conn = get_db_connection()
     conn.execute('INSERT INTO taches (titre, description, dateEcheance) VALUES (?, ?, ?)',
-                 (titre, desc, date))
+                 (titre, description, date_echeance))
     conn.commit()
     conn.close()
     return redirect(url_for('Gestion'))
 
 @app.route('/supprimer/<int:id>')
 def supprimer(id):
-    # Suppression d'une tâche 
-    conn = get_db()
+    conn = get_db_connection()
     conn.execute('DELETE FROM taches WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('Gestion'))
+
+@app.route('/terminer/<int:id>')
+def terminer(id):
+    conn = get_db_connection()
+    conn.execute('UPDATE taches SET statut = 1 WHERE id = ?', (id,))
     conn.commit()
     conn.close()
     return redirect(url_for('Gestion'))
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
 
 @app.route('/fiche_nom')
 def fiche_nom():
