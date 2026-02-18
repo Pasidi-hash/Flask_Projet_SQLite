@@ -3,77 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Gestionnaire de Tâches Collaboratif</title>
+    <title>Dashboard - Gestionnaire de Tâches</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; background-color: #f4f4f4; }
-        header { background: #333; color: #fff; padding: 1rem; text-align: center; margin-bottom: 20px; }
-        nav a { color: #fff; margin: 0 15px; text-decoration: none; font-weight: bold; }
-        section { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
-        th { background-color: #f8f8f8; }
-        .btn-add { background: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-del { color: #dc3545; text-decoration: none; font-weight: bold; }
-        .btn-done { color: #28a745; text-decoration: none; font-weight: bold; }
-        input, textarea { width: 100%; padding: 8px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; }
+        :root {
+            --primary: #4361ee;
+            --success: #2ec4b6;
+            --danger: #e71d36;
+            --warning: #ff9f1c;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            background-color: #f0f2f5; 
+            color: var(--dark);
+        }
+
+        /* Sidebar simple */
+        nav {
+            width: 250px;
+            height: 100vh;
+            background: var(--dark);
+            color: white;
+            padding: 20px;
+            position: fixed;
+        }
+
+        nav h2 { font-size: 1.2rem; margin-bottom: 30px; color: var(--primary); }
+        nav a { 
+            display: block; 
+            color: #adb5bd; 
+            text-decoration: none; 
+            padding: 12px 0; 
+            transition: 0.3s;
+        }
+        nav a:hover { color: white; }
+        nav a i { margin-right: 10px; }
+
+        /* Contenu Principal */
+        main {
+            margin-left: 250px;
+            padding: 40px;
+            width: calc(100% - 250px);
+        }
+
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        /* Cartes de statistiques */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* Formulaire d'ajout moderne */
+        .form-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .form-group { margin-bottom: 15px; }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button.btn-add {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Tableau de bord */
+        .table-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 15px; border-bottom: 2px solid #f0f2f5; color: #6c757d; }
+        td { padding: 15px; border-bottom: 1px solid #f0f2f5; }
+
+        /* Badges de statut */
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .badge-todo { background: #fff3e0; color: var(--warning); }
+        .badge-done { background: #e8f5e9; color: var(--success); }
+
+        .btn-action { color: #6c757d; margin-left: 10px; transition: 0.2s; }
+        .btn-action:hover { color: var(--danger); }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Gestionnaire de Tâches</h1>
-        <nav>
-            <a href="#accueil">Accueil</a>
-            <a href="#ajouter">Ajouter une Tâche</a>
-            <a href="#liste">Consulter la Liste</a>
-        </nav>
-    </header>
+    <nav>
+        <h2><i class="fas fa-tasks"></i> TaskMaster</h2>
+        <a href="#"><i class="fas fa-home"></i> Accueil</a> <a href="#ajouter"><i class="fas fa-plus-circle"></i> Ajouter</a> <a href="#liste"><i class="fas fa-list"></i> Mes Tâches</a> </nav>
 
-    <section id="accueil">
-        <h2>Bienvenue dans votre espace collaboratif</h2>
-        <p>Cette application vous permet de gérer vos missions quotidiennes efficacement[cite: 5].</p>
-    </section>
+    <main>
+        <div class="header-flex">
+            <h1>Gestionnaire Collaboratif</h1>
+            <span id="current-date"></span>
+        </div>
 
-    <section id="ajouter">
-        <h2>Ajouter une nouvelle tâche</h2>
-        <form action="votre_servlet_ajout" method="POST">
-            <label for="titre">Titre de la tâche:</label>
-            <input type="text" id="titre" name="titre" placeholder="Ex: Réviser Java" required>
+        <section id="ajouter" class="form-section">
+            <h3><i class="fas fa-edit"></i> Nouvelle Mission</h3>
+            <form action="{{ url_for('enregistrer_tache') }}" method="POST">
+                <div class="form-group">
+                    <input type="text" name="titre" placeholder="Titre de la tâche" required> </div>
+                <div class="form-group">
+                    <textarea name="description" placeholder="Description détaillée..." rows="2" required></textarea> </div>
+                <div class="form-group">
+                    <label style="font-size: 0.8rem; color: #666;">Échéance :</label>
+                    <input type="date" name="dateEcheance" required> </div>
+                <button type="submit" class="btn-add">Enregistrer la tâche</button>
+            </form>
+        </section>
 
-            <label for="description">Description:</label>
-            <textarea id="description" name="description" rows="3" placeholder="Détaillez la tâche..." required></textarea>
+        <section id="liste" class="table-container">
+            <h3><i class="fas fa-stream"></i> Liste des Tâches</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Titre</th> <th>Description</th> <th>Échéance</th> <th>Statut</th> <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tache in taches %}
+                    <tr>
+                        <td><strong>{{ tache['titre'] }}</strong></td>
+                        <td>{{ tache['description'] }}</td>
+                        <td><i class="far fa-calendar-alt"></i> {{ tache['date_echeance'] }}</td>
+                        <td>
+                            {% if tache['statut'] == 1 %}
+                                <span class="badge badge-done">Terminée</span> {% else %}
+                                <span class="badge badge-todo">À faire</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="/supprimer/{{ tache['id'] }}" class="btn-action" title="Supprimer" onclick="return confirm('Supprimer ?')">
+                                <i class="fas fa-trash-alt"></i> </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
 
-            <label for="date">Date d'échéance:</label>
-            <input type="date" id="date" name="dateEcheance" required>
-
-            <button type="submit" class="btn-add">Enregistrer en base de données</button>
-        </form>
-    </section>
-
-    <section id="liste">
-        <h2>Liste de vos tâches </h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Titre </th>
-                    <th>Description </th>
-                    <th>Échéance </th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Projet IT</td>
-                    <td>Créer l'application web simple [cite: 5]</td>
-                    <td>20/05/2024</td>
-                    <td>
-                        <a href="#" class="btn-done">✔ Terminer</a> | 
-                        <a href="#" class="btn-del" onclick="return confirm('Supprimer ?')">✘ Supprimer</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
-
+    <script>
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    </script>
 </body>
 </html>
