@@ -1,19 +1,21 @@
 import sqlite3
 
-# Connexion à la nouvelle base de données
-connection = sqlite3.connect('gestion_taches.db')
+def init_db():
+    conn = sqlite3.connect('gestion_taches.db')
+    cursor = conn.cursor()
+    # Création de la table avec les champs exigés par le doc
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS taches (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            titre TEXT NOT NULL,
+            description TEXT NOT NULL,
+            dateEcheance TEXT NOT NULL,
+            statut INTEGER DEFAULT 0
+        )
+    ''')
+    conn.commit()
+    conn.close()
+    print("Base 'gestion_taches.db' créée avec succès !")
 
-# Lecture et exécution du schéma
-with open('schema_taches.sql') as f:
-    connection.executescript(f.read())
-
-cur = connection.cursor()
-
-# Insertion d'une tâche d'exemple (optionnel)
-cur.execute("INSERT INTO taches (titre, description, date_echeance) VALUES (?, ?, ?)",
-            ('Projet IT', 'Créer l application web simple', '2024-05-20'))
-
-connection.commit()
-connection.close()
-
-print("La base de données 'gestion_taches.db' a été créée avec succès.")
+if __name__ == "__main__":
+    init_db()
