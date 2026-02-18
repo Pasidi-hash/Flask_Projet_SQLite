@@ -16,18 +16,53 @@ def est_authentifie():
 def hello_world():
     return render_template('hello.html')
 
+from flask import Flask, render_template, request, redirect, url_for
+import sqlite3
+
+
+def get_db():
+    conn = sqlite3.connect('gestion_taches.db')
+    conn.row_factory = sqlite3.Row
+    return conn
+
+@app.route('/')
+def index():
+    # Page d'accueil avec navigation 
+    return render_template('index.html')
+
 @app.route('/Gestionnaire')
 def Gestion():
-    try:
-        conn = sqlite3.connect('gestion_taches.db')
-        conn.row_factory = sqlite3.Row
-        # On récupère les tâches pour les afficher dans le HTML
-        taches = conn.execute('SELECT * FROM taches').fetchall()
-        conn.close()
-        # Flask cherche automatiquement dans le dossier /templates/
-        return render_template('GestionTaches.html', taches=taches)
-    except Exception as e:
-        return f"Erreur de base de données : {e}. Avez-vous lancé createdbgestion.py ?"
+    # Affichage des tâches 
+    conn = get_db()
+    taches = conn.execute('SELECT * FROM taches').fetchall()
+    conn.close()
+    return render_template('GestionTaches.html', taches=taches)
+
+@app.route('/ajouter', methods=['POST'])
+def ajouter():
+    # Ajouter une tâche 
+    titre = request.form.get('titre')
+    desc = request.form.get('description')
+    date = request.form.get('dateEcheance')
+    
+    conn = get_db()
+    conn.execute('INSERT INTO taches (titre, description, dateEcheance) VALUES (?, ?, ?)',
+                 (titre, desc, date))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('Gestion'))
+
+@app.route('/supprimer/<int:id>')
+def supprimer(id):
+    # Suppression d'une tâche 
+    conn = get_db()
+    conn.execute('DELETE FROM taches WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('Gestion'))
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 @app.route('/fiche_nom')
 def fiche_nom():
