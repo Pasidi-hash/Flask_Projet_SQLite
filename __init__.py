@@ -18,7 +18,12 @@ def hello_world():
 
 @app.route('/Gestionnaire')
 def Gestion():
-    return render_template('GestionTaches.html')
+    # On se connecte à la nouvelle BDD créée
+    conn = sqlite3.connect('gestion_taches.db')
+    conn.row_factory = sqlite3.Row
+    taches = conn.execute('SELECT * FROM taches').fetchall()
+    conn.close()
+    return render_template('GestionTaches.html', taches=taches)
 
 @app.route('/fiche_nom')
 def fiche_nom():
