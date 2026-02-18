@@ -17,13 +17,6 @@ def hello_world():
     return render_template('hello.html')
 
 
-
-from flask import Flask, render_template, request, redirect, url_for
-import sqlite3
-import os
-
-app = Flask(__name__)
-
 # Configuration du chemin de la base pour Alwaysdata
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "gestion_taches.db")
