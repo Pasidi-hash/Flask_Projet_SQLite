@@ -32,12 +32,26 @@ def index():
 
 @app.route('/Gestionnaire')
 def Gestion():
-    # Affichage des tâches 
-    conn = get_db()
-    taches = conn.execute('SELECT * FROM taches').fetchall()
-    conn.close()
-    return render_template('GestionTaches.html', taches=taches)
-
+    try:
+        # Connexion à la base spécifique au projet
+        conn = sqlite3.connect('gestion_taches.db')
+        
+        # CETTE LIGNE EST ESSENTIELLE : elle permet d'accéder aux données 
+        # par nom (tache['titre']) au lieu d'index (tache[1])
+        conn.row_factory = sqlite3.Row 
+        
+        cursor = conn.cursor()
+        
+        # On récupère toutes les tâches
+        taches = cursor.execute('SELECT * FROM taches').fetchall()
+        conn.close()
+        
+        # On envoie les données au HTML
+        return render_template('GestionTaches.html', taches=taches)
+        
+    except sqlite3.OperationalError as e:
+        # Si la table n'existe pas, on affiche un message clair au lieu d'une erreur 500
+        return f"Erreur : La table n'existe pas encore. Lancez 'python createdbgestion.py'. Détail : {e}"
 @app.route('/ajouter', methods=['POST'])
 def ajouter():
     # Ajouter une tâche 
