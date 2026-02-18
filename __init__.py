@@ -66,9 +66,6 @@ def supprimer(id):
     conn.close()
     return redirect(url_for('Gestion'))
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
 
 
 
