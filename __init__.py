@@ -16,22 +16,43 @@ def est_authentifie():
 def hello_world():
     return render_template('hello.html')
 
+
+
+from flask import Flask, render_template, request, redirect, url_for
+import sqlite3
+import os
+
+app = Flask(__name__)
+
+# Configuration du chemin de la base pour Alwaysdata
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "gestion_taches.db")
+
+def get_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
 @app.route('/Gestionnaire')
 def Gestion():
-    conn = get_db_connection()
-    # Récupère toutes les tâches pour les afficher dans la liste
-    taches = conn.execute('SELECT * FROM taches').fetchall()
-    conn.close()
-    return render_template('GestionTaches.html', taches=taches)
+    try:
+        conn = get_db()
+        # [cite_start]Sélection des tâches pour affichage [cite: 13]
+        taches = conn.execute('SELECT * FROM taches').fetchall()
+        conn.close()
+        return render_template('GestionTaches.html', taches=taches)
+    except Exception as e:
+        return f"Erreur de base de données : {e}. Vérifiez que gestion_taches.db existe au bon endroit."
 
-@app.route('/enregistrer_tache', methods=['POST'])
-def enregistrer_tache():
+@app.route('/ajouter', methods=['POST'])
+def ajouter():
     titre = request.form.get('titre')
     description = request.form.get('description')
-    date_echeance = request.form.get('dateEcheance')
-
-    conn = get_db_connection()
-    conn.execute('INSERT INTO taches (titre, description, dateEcheance) VALUES (?, ?, ?)',
+    date_echeance = request.form.get('date_echeance')
+    
+    conn = get_db()
+    # [cite_start]Insertion des données (titre, description, date) [cite: 8, 13]
+    conn.execute('INSERT INTO taches (titre, description, date_echeance) VALUES (?, ?, ?)',
                  (titre, description, date_echeance))
     conn.commit()
     conn.close()
@@ -39,22 +60,16 @@ def enregistrer_tache():
 
 @app.route('/supprimer/<int:id>')
 def supprimer(id):
-    conn = get_db_connection()
+    conn = get_db()
     conn.execute('DELETE FROM taches WHERE id = ?', (id,))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('Gestion'))
-
-@app.route('/terminer/<int:id>')
-def terminer(id):
-    conn = get_db_connection()
-    conn.execute('UPDATE taches SET statut = 1 WHERE id = ?', (id,))
     conn.commit()
     conn.close()
     return redirect(url_for('Gestion'))
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
 
 
 
