@@ -16,6 +16,10 @@ def est_authentifie():
 def hello_world():
     return render_template('hello.html')
 
+@app.route('/Gestionnaire')
+def Gestion():
+    return render_template('GestionTaches.html')
+
 @app.route('/fiche_nom')
 def fiche_nom():
     # Récupère le nom depuis l'URL (?nom=DUPONT)
