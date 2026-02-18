@@ -17,47 +17,22 @@ def hello_world():
     return render_template('hello.html')
 
 
-# Configuration du chemin de la base pour Alwaysdata
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "gestion_taches.db")
 
-def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
 
 @app.route('/Gestionnaire')
 def Gestion():
-    try:
-        conn = get_db()
-        # [cite_start]Sélection des tâches pour affichage [cite: 13]
-        taches = conn.execute('SELECT * FROM taches').fetchall()
-        conn.close()
-        return render_template('GestionTaches.html', taches=taches)
-    except Exception as e:
-        return f"Erreur de base de données : {e}. Vérifiez que gestion_taches.db existe au bon endroit."
-
-@app.route('/ajouter', methods=['POST'])
-def ajouter():
-    titre = request.form.get('titre')
-    description = request.form.get('description')
-    date_echeance = request.form.get('date_echeance')
+    # Chemin absolu vers la base pour éviter l'erreur "no such table" [cite: 11]
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(BASE_DIR, 'gestion_taches.db')
     
-    conn = get_db()
-    # [cite_start]Insertion des données (titre, description, date) [cite: 8, 13]
-    conn.execute('INSERT INTO taches (titre, description, date_echeance) VALUES (?, ?, ?)',
-                 (titre, description, date_echeance))
-    conn.commit()
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    
+    # On récupère les tâches pour alimenter la liste 
+    taches = conn.execute('SELECT * FROM taches').fetchall()
     conn.close()
-    return redirect(url_for('Gestion'))
-
-@app.route('/supprimer/<int:id>')
-def supprimer(id):
-    conn = get_db()
-    conn.execute('DELETE FROM taches WHERE id = ?', (id,))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('Gestion'))
+    
+    return render_template('GestionTaches.html', taches=taches)
 
 
 
