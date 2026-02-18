@@ -21,19 +21,25 @@ def hello_world():
 
 @app.route('/Gestionnaire')
 def Gestion():
-    # Chemin absolu vers la base pour éviter l'erreur "no such table" [cite: 11]
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(BASE_DIR, 'gestion_taches.db')
-    
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    
-    # On récupère les tâches pour alimenter la liste 
-    taches = conn.execute('SELECT * FROM taches').fetchall()
-    conn.close()
-    
-    return render_template('GestionTaches.html', taches=taches)
-
+    try:
+        # On définit le chemin absolu du dossier actuel (indispensable sur Alwaysdata)
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        db_path = os.path.join(BASE_DIR, 'gestion_taches.db')
+        
+        # Connexion à la base de données
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        
+        # On récupère les tâches (Titre, Description, Échéance) 
+        taches = conn.execute('SELECT * FROM taches').fetchall()
+        conn.close()
+        
+        # On affiche le template GestionTaches.html situé dans /templates/
+        return render_template('GestionTaches.html', taches=taches)
+        
+    except Exception as e:
+        # En cas d'erreur 500, ceci affichera le message précis sur votre page
+        return f"Erreur de configuration : {str(e)}. Vérifiez si gestion_taches.db est bien à la racine."
 
 
 
